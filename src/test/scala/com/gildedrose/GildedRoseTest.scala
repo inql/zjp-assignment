@@ -20,7 +20,35 @@ class GildedRoseTest extends FunSpec with BeforeAndAfterEach {
 
     it("should degrade item's quality by one when the day ends"){
       gildedRose.updateQuality()
-      assert(regular.quality == 6)
+      assertResult(6)(regular.quality)
+    }
+
+    it("should reduce item's sellIn by one then the day ends"){
+      gildedRose.updateQuality()
+      assertResult(6)(regular.sellIn)
+    }
+
+    it("should degrade item's quality twice when sellIn reached zero"){
+      regular.sellIn = 0
+      gildedRose.updateQuality()
+      assertResult(5)(regular.quality)
+    }
+
+    it("should item's quality never reach zero"){
+      regular.quality = 0
+      gildedRose.updateQuality()
+      assertResult(0)(regular.quality)
+    }
+
+    it("should increase aged brie quality when the day ends"){
+      gildedRose.updateQuality()
+      assertResult(16)(agedBrie.quality)
+    }
+
+    it("should increase aged brie quality twice when sellIn value is lower than zero"){
+      agedBrie.sellIn = -1
+      gildedRose.updateQuality()
+      assertResult(17)(agedBrie.quality)
     }
 
 
