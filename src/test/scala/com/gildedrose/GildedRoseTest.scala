@@ -11,7 +11,7 @@ class GildedRoseTest extends FunSpec with BeforeAndAfterEach {
     regular = new Item("regular", 7, 7)
     agedBrie = new Item("Aged Brie", 15, 15)
     sulfuras = new Item("Sulfuras, Hand of Ragnaros", 30,80)
-    backstage = new Item("Backstage passes to a TAFKAL80ETC concert", 11, 8)
+    backstage = new Item("Backstage passes to a TAFKAL80ETC concert", 11, 9)
 
     gildedRose = new GildedRose(Array(regular,agedBrie,sulfuras,backstage))
   }
@@ -49,6 +49,40 @@ class GildedRoseTest extends FunSpec with BeforeAndAfterEach {
       agedBrie.sellIn = -1
       gildedRose.updateQuality()
       assertResult(17)(agedBrie.quality)
+    }
+
+    it("should not increase item quality then it's 50"){
+      agedBrie.quality = 50
+      gildedRose.updateQuality()
+      assertResult(50)(agedBrie.quality)
+    }
+
+    it("should not decrease sulfuras quality or sellIn value"){
+      gildedRose.updateQuality()
+      assert(sulfuras.quality == 80 && sulfuras.sellIn == 30)
+    }
+
+    it("should increase backstage quality when sellIn value is (10,inf]"){
+      gildedRose.updateQuality()
+      assertResult(10)(backstage.quality)
+    }
+
+    it("should increase backstage quality by 2 when sellIn value is greater than (5,10]"){
+      backstage.sellIn = 10
+      gildedRose.updateQuality()
+      assertResult(11)(backstage.quality)
+    }
+
+    it("should increase backstage quality by 3 when sellIn value is greater than (0,5]"){
+      backstage.sellIn = 5
+      gildedRose.updateQuality()
+      assertResult(12)(backstage.quality)
+    }
+
+    it("should not increase backstage quality when sellIn value is zero"){
+      backstage.sellIn = 0
+      gildedRose.updateQuality()
+      assertResult(0)(backstage.quality)
     }
 
 
