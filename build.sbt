@@ -6,3 +6,4 @@ scalaVersion := "2.12.1"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1"
 
+scapegoatVersion in ThisBuild := "1.3.5"
