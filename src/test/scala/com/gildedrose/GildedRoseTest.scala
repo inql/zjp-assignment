@@ -4,7 +4,7 @@ import org.scalatest._
 
 class GildedRoseTest extends FunSpec with BeforeAndAfterEach {
 
-  var regular, agedBrie, sulfuras, backstage: Item = Nil
+  var regular, agedBrie, sulfuras, backstage: Item = _
   var gildedRose: GildedRose = _
 
   override def beforeEach(): Unit = {
@@ -14,6 +14,18 @@ class GildedRoseTest extends FunSpec with BeforeAndAfterEach {
     backstage = new Item("Backstage passes to a TAFKAL80ETC concert", 11, 8)
 
     gildedRose = new GildedRose(Array(regular,agedBrie,sulfuras,backstage))
+  }
+
+  describe("GildedRose"){
+
+    it("should degrade item's quality by one when the day ends"){
+      gildedRose.updateQuality()
+      assert(regular.quality == 6)
+    }
+
+
+
+
   }
 
 
