@@ -1,5 +1,9 @@
 package com.gildedrose
 
+/**
+ * A class to represent "Gilded Rose" system which is defined to update items.
+ * @param items Arrays with defined items
+ */
 class GildedRose(val items: Array[Item]) {
 
   val Sulfuras = "Sulfuras, Hand of Ragnaros"
@@ -7,11 +11,22 @@ class GildedRose(val items: Array[Item]) {
   val Backstage = "Backstage passes to a TAFKAL80ETC concert"
   val Conjured = "conjured"
 
+  /**
+   * A function to avoid exceeding maximum quality of given item.
+   * @param item Item to be checked
+   * @param updateValue Value to be added to the item's quality.
+   * @param maxQuality Maximum quality for given item.
+   * @return
+   */
   def setMaxQuality(item: Item, updateValue: Int, maxQuality: Int): Item = {
     item.quality += updateValue
     item.quality = item.quality min maxQuality
     item
   }
+
+  /**
+   * Main function which defines logic for specific items.
+   */
 
   def updateQuality(): Unit = {
     items.foreach {
