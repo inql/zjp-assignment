@@ -5,6 +5,7 @@ class GildedRose(val items: Array[Item]) {
   val Sulfuras = "Sulfuras, Hand of Ragnaros"
   val AgedBrie = "Aged Brie"
   val Backstage = "Backstage passes to a TAFKAL80ETC concert"
+  val Conjured = "conjured"
 
   def setMaxQuality(item: Item, updateValue: Int, maxQuality: Int): Item = {
     item.quality += updateValue
@@ -33,6 +34,12 @@ class GildedRose(val items: Array[Item]) {
       case item@Item(Backstage, sellIn, _) if sellIn <= 0 =>
         item.sellIn -= 1
         item.quality = 0
+      case item@Item(Conjured, sellIn, quality) if quality > 0 && sellIn > 0 =>
+        item.sellIn -= 1
+        item.quality -=2
+      case item@Item(Conjured, sellIn, quality) if quality > 0 && sellIn <= 0 =>
+        item.sellIn -= 1
+        item.quality -= 4
       case item@Item(_, sellIn, quality) if sellIn > 0 && quality > 0 =>
         item.sellIn -= 1
         item.quality -= 1
