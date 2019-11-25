@@ -1,5 +1,5 @@
 package com.gildedrose
 
-case class Item(name: String, sellIn: Int, quality: Int) {
+case class Item(name: String, var sellIn: Int, var quality: Int) {
 
 }
