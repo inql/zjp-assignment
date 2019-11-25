@@ -55,4 +55,10 @@ class GildedRose(val items: Array[Item]) {
       }
     }
   }
+
+  def setMaxQuality(item: Item, updateValue: Int, maxQuality: Int): Item = {
+    item.quality += updateValue
+    item.quality = item.quality min maxQuality
+    item
+  }
 }
