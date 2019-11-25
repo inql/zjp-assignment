@@ -4,16 +4,16 @@ import org.scalatest._
 
 class GildedRoseTest extends FunSpec with BeforeAndAfterEach {
 
-  var regular, agedBrie, sulfuras, backstage: Item = _
+  var regular, agedBrie, sulfuras, backstage, conjured: Item = _
   var gildedRose: GildedRose = _
 
   override def beforeEach(): Unit = {
-    regular = new Item("regular", 7, 7)
-    agedBrie = new Item("Aged Brie", 15, 15)
-    sulfuras = new Item("Sulfuras, Hand of Ragnaros", 30,80)
-    backstage = new Item("Backstage passes to a TAFKAL80ETC concert", 11, 9)
-
-    gildedRose = new GildedRose(Array(regular,agedBrie,sulfuras,backstage))
+    regular = Item("regular", 7, 7)
+    agedBrie = Item("Aged Brie", 15, 15)
+    sulfuras = Item("Sulfuras, Hand of Ragnaros", 30,80)
+    backstage = Item("Backstage passes to a TAFKAL80ETC concert", 11, 9)
+    conjured = Item("conjured", 12, 12)
+    gildedRose = new GildedRose(Array(regular,agedBrie,sulfuras,backstage,conjured))
   }
 
   describe("GildedRose"){
@@ -85,7 +85,16 @@ class GildedRoseTest extends FunSpec with BeforeAndAfterEach {
       assertResult(0)(backstage.quality)
     }
 
+    it("should degrade conjured quality by two when the day ends"){
+      gildedRose.updateQuality()
+      assertResult(10)(conjured.quality)
+    }
 
+    it("should degrade conjured quality twice as normal if sellIn <=0"){
+      conjured.sellIn = 0
+      gildedRose.updateQuality()
+      assertResult(8)(conjured.quality)
+    }
 
 
   }
