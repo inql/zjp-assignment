@@ -1,3 +1,9 @@
+
+/*
+ * Copyright (c) 2019 Dawid Bińkuś
+ * All rights reserved.
+ */
+
 package com.gildedrose
 
 /**
@@ -6,6 +12,9 @@ package com.gildedrose
  */
 class GildedRose(val items: Array[Item]) {
 
+  /**
+   * Constants defined for pattern matching purposes.
+   */
   val Sulfuras = "Sulfuras, Hand of Ragnaros"
   val AgedBrie = "Aged Brie"
   val Backstage = "Backstage passes to a TAFKAL80ETC concert"

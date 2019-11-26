@@ -1,3 +1,9 @@
+
+/*
+ * Copyright (c) 2019 Dawid Bińkuś
+ * All rights reserved.
+ */
+
 package com.gildedrose
 
 /**
