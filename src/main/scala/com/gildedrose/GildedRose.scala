@@ -6,8 +6,10 @@
 
 package com.gildedrose
 
+
 /**
  * A class to represent "Gilded Rose" system which is defined to update items.
+ *
  * @param items Arrays with defined items
  */
 class GildedRose(val items: Array[Item]) {

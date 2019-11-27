@@ -8,6 +8,7 @@ package com.gildedrose
 
 /**
  * A case class which contains information about specific item.
+ *
  * @param name Name of the item.
  * @param sellIn Defines when the item should be sold.
  * @param quality Current quality value.
