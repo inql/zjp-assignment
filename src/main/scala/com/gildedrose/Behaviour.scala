@@ -22,6 +22,6 @@ abstract class Behaviour(item: Item) {
 
   protected def updateQualityValue
 
-  protected def updateSellInValue
+  protected def updateSellInValue(): Unit = item.sellIn -= 1
 
 }

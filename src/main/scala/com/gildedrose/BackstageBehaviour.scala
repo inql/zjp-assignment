@@ -13,7 +13,7 @@ class BackstageBehaviour(item: Item) extends Behaviour(item){
   }
 
   override protected def updateSellInValue: Unit = {
-    item.sellIn -= 1
+    super.updateSellInValue()
     item.quality = if (item.sellIn < 0) 0 else item.quality
   }
 }
