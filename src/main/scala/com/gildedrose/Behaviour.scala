@@ -6,6 +6,10 @@
 
 package com.gildedrose
 
+/**
+ * Abstract class which create behaviour based on the item name.
+ * @param item Item to create a behaviour for.
+ */
 abstract class Behaviour(item: Item) {
 
   val maxQuality = 50
