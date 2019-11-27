@@ -12,8 +12,8 @@ abstract class Behaviour(item: Item) {
   val minQuality = 0
 
   def update(): Unit = {
-    updateQualityValue
-    updateSellInValue
+    updateQualityValue()
+    updateSellInValue()
 
     item.quality = if (item.quality > maxQuality)  maxQuality
       else if (item.quality < minQuality) minQuality
@@ -21,9 +21,7 @@ abstract class Behaviour(item: Item) {
   }
 
 
-  protected def updateQualityValue(): Unit = {
-    //Implementation is fully depended on subclasses of Behaviour
-  }
+  protected def updateQualityValue(): Unit
 
   protected def updateSellInValue(): Unit = item.sellIn -= 1
 
