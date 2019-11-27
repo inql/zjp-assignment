@@ -7,7 +7,7 @@ package com.gildedrose
 
 class DefaultBehaviour(item: Item) extends Behaviour(item){
   override protected def updateQualityValue: Unit = {
-    item.quality = if (item.sellIn < 0) item.quality - 2 else item.quality - 1
+    item.quality = if (item.sellIn <= 0) item.quality - 2 else item.quality - 1
   }
 
   override protected def updateSellInValue: Unit = item.sellIn -= 1
