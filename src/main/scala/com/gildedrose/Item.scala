@@ -4,9 +4,7 @@
  * All rights reserved.
  */
 
-package com.gildedrose.model
-
-import com.gildedrose.behaviours._
+package com.gildedrose
 
 /**
  * A case class which contains information about specific item.

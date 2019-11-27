@@ -3,9 +3,7 @@
  * All rights reserved.
  */
 
-package com.gildedrose.behaviours
-
-import com.gildedrose.model.Item
+package com.gildedrose
 
 class ConjuredBehaviour(item: Item) extends Behaviour(item){
   override protected def updateQualityValue(): Unit = {

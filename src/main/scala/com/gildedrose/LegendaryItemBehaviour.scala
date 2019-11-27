@@ -3,9 +3,7 @@
  * All rights reserved.
  */
 
-package com.gildedrose.behaviours
-
-import com.gildedrose.model.Item
+package com.gildedrose
 
 class LegendaryItemBehaviour(item: Item) extends Behaviour(item){
   override def update():Unit = {}

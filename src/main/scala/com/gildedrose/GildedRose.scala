@@ -4,10 +4,8 @@
  * All rights reserved.
  */
 
-package com.gildedrose.service
+package com.gildedrose
 
-import com.gildedrose.ItemFactory
-import com.gildedrose.model.{Item, ItemFactory}
 
 /**
  * A class to represent "Gilded Rose" system which is defined to update items.
