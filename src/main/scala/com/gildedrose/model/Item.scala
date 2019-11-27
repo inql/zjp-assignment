@@ -4,10 +4,13 @@
  * All rights reserved.
  */
 
-package com.gildedrose
+package com.gildedrose.model
+
+import com.gildedrose.behaviours._
 
 /**
  * A case class which contains information about specific item.
+ *
  * @param name Name of the item.
  * @param sellIn Defines when the item should be sold.
  * @param quality Current quality value.

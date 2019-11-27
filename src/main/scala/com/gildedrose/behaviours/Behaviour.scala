@@ -3,7 +3,9 @@
  * All rights reserved.
  */
 
-package com.gildedrose
+package com.gildedrose.behaviours
+
+import com.gildedrose.model.Item
 
 abstract class Behaviour(item: Item) {
 
@@ -20,7 +22,7 @@ abstract class Behaviour(item: Item) {
   }
 
 
-  protected def updateQualityValue
+  protected def updateQualityValue(): Unit
 
   protected def updateSellInValue(): Unit = item.sellIn -= 1
 

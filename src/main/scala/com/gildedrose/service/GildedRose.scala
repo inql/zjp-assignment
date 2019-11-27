@@ -4,10 +4,14 @@
  * All rights reserved.
  */
 
-package com.gildedrose
+package com.gildedrose.service
+
+import com.gildedrose.ItemFactory
+import com.gildedrose.model.{Item, ItemFactory}
 
 /**
  * A class to represent "Gilded Rose" system which is defined to update items.
+ *
  * @param items Arrays with defined items
  */
 class GildedRose(val items: Array[Item]) {

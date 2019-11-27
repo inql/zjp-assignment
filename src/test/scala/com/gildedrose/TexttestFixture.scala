@@ -1,5 +1,8 @@
 package com.gildedrose
 
+import com.gildedrose.model.Item
+import com.gildedrose.service.GildedRose
+
 object TexttestFixture {
   def main(args: Array[String]): Unit = {
     var items = Array[Item](

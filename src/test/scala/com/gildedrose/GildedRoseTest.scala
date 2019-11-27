@@ -5,6 +5,8 @@
 
 package com.gildedrose
 
+import com.gildedrose.model.Item
+import com.gildedrose.service.GildedRose
 import org.scalatest._
 
 class GildedRoseTest extends FunSpec with BeforeAndAfterEach {
