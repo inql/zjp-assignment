@@ -21,7 +21,9 @@ abstract class Behaviour(item: Item) {
   }
 
 
-  protected def updateQualityValue(): Unit
+  protected def updateQualityValue(): Unit = {
+    //Implementation is fully depended on subclasses of Behaviour
+  }
 
   protected def updateSellInValue(): Unit = item.sellIn -= 1
 
