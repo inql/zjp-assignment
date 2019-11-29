@@ -160,8 +160,58 @@ Po przygotowaniu wszystkich testów, należało przystąpić do wykonania testow
 Dzięki zaimplementowaniu testów jednostkowych, upewniliśmy się, że implementacja systemu mimo wątpliwej jakości, działa tak jak zakładaliśmy. Umożliwia to przejście do kolejnego etapu refactoryzacji.
 Dodatkowo, osiągnięte zostało pokrycie kodu w postaci 100\% instrukcji zawartych w systemie GildedRose
 \subsection{Upraszczanie kodu}
+Implementacja systemu składająca się z szeregu zagnieżdżonych zapytań \textit{if} znacząco utrudniała zrozumienie kodu i znacznie ograniczała jego modularność oraz możliwość rozwinięcia jego zadań. 
+By dokonać prawidłowego dokonania refactoryzacji kodu, należało dokładnie go przeanalizować a następnie podzielić go na mniejsze części by całość rozwiązania była bardziej spójna.
+W przypadku projektu GildedRose, pierwszym krokiem było wydzielenie funkcji odpowiedzialnej za aktualizację jakości produktu, ponieważ to właśnie ta operacja była najbardziej narażona na nieprawidłowe zmiany. Treść nowo dodanej funkcji prezentowała się następująco:
+\begin{lstlisting}[language=scala]
+  def setMaxQuality(item: Item, updateValue: Int, maxQuality: Int): Item = {
+    item.quality += updateValue
+    item.quality = item.quality min maxQuality
+    item
+  }
+\end{lstlisting}
+Udało nam się już wydzielić część logiki z systemu GildedRose. Następnym krokiem było użycie go we właściwej już implementacji. Jest to również idealny moment by zmienić całą strukturę decydowania o aktualizacji stanu przedmiotu. Najrozsądniejszym rozwiązaniem okazało się reimpementacja klasy \textit{Item} na tzw. \textit{klasę przypadku} - specjalny rodzaj klasy, stworzony do kreowania takich obiektów jak np. przedmioty w bazie danych. Umożliwia on również zastosowanie tzw. zastosowania wzorca (ang. pattern matching) by stworzyć implementację nieopartą o zagnieżdżone zapytania if - co za tym idzie - ze znacznie zmniejszoną złożonością.
+\begin{lstlisting}[language=scala]
+case class Item(val name: String, var sellIn: Int, var quality: Int)
+\end{lstlisting}
+Po aktualizacji pliku GildedRose.scala, implementacja prezentuje się następująco:
+\begin{lstlisting}[language=scala]
+  def updateQuality(): Unit = {
+    items.foreach {
+      case Item("Sulfuras, Hand of Ragnaros", _, _) =>
+      case item@Item("Aged Brie", sellIn, quality) if quality <= 50 & sellIn >= 0 =>
+        item.sellIn -= 1
+        setMaxQuality(item, 1, 50)
+      case item@Item("Aged Brie", sellIn, quality) if quality <= 50 & sellIn < 0 =>
+        item.sellIn -= 1
+        setMaxQuality(item, 2, 50)
+      case item@Item("Backstage passes to a TAFKAL80ETC concert", sellIn, quality) if quality < 50 && sellIn > 10 =>
+        item.sellIn -= 1
+        setMaxQuality(item, 1, 50)
+      case item@Item("Backstage passes to a TAFKAL80ETC concert", sellIn, quality) if quality < 50 && sellIn > 5 =>
+        item.sellIn -= 1
+        setMaxQuality(item, 2, 50)
+      case item@Item("Backstage passes to a TAFKAL80ETC concert", sellIn, quality) if quality < 50 && sellIn > 0 =>
+        item.sellIn -= 1
+        setMaxQuality(item, 3, 50)
+      case item@Item("Backstage passes to a TAFKAL80ETC concert", sellIn, _) if sellIn <= 0 =>
+        item.sellIn -= 1
+        item.quality = 0
+      case item@Item(_, sellIn, quality) if sellIn > 0 && quality > 0 =>
+        item.sellIn -= 1
+        item.quality -= 1
+      case item@Item(_, sellIn, quality) if sellIn <= 0 && quality > 0 =>
+        item.sellIn -= 1
+        item.quality -= 2
+      case _ =>
+    }
+  }
+\end{lstlisting}
+Dzięki zastosowaniu pattern matching, jakość i struktura kodu została znacznie usprawniona, jednocześnie pozostawiając implementację niezmienną. Ostatnim krokiem było wydzielenie zmiennych stałych dla nazw przedmiotu, by ułatwić przyszłą pracę z kodem źródłowym systemu.
 \subsection{Implementacja nowej funkcjonalności}
-\section{Implementacja paradygmatu funkcyjnego do istniejącego kodu obiektowego}
+Następnym etapem refactoryzacji kodu było dodanie nowej funkcjonalności zdefiniowanej w treści zadania. Zakładała ona dodanie nowego typu przedmiotu: \textit{conjured}, którego jakość spada każdego dnia o 2. W przypadku gdy termin sprzedaży minął, wartość ta spada dwukrotnie.
+Pracę nad dodaniem implementacji rozpoczęto od zdefiniowania podstawowych testów jednostkowych - w myśl zasady \textbf{TDD} oraz \textbf{BDD}. 
+\section{Implementacja paradygmatu funkcyjnego do istniejącego kodu obiektowego oraz dalsze usprawnienia}
 \subsection{Wydzielenie logiki kodu}
 \subsection{Funkcja jako wyrażenie}
 
