@@ -211,8 +211,164 @@ Dzięki zastosowaniu pattern matching, jakość i struktura kodu została znaczn
 \subsection{Implementacja nowej funkcjonalności}
 Następnym etapem refactoryzacji kodu było dodanie nowej funkcjonalności zdefiniowanej w treści zadania. Zakładała ona dodanie nowego typu przedmiotu: \textit{conjured}, którego jakość spada każdego dnia o 2. W przypadku gdy termin sprzedaży minął, wartość ta spada dwukrotnie.
 Pracę nad dodaniem implementacji rozpoczęto od zdefiniowania podstawowych testów jednostkowych - w myśl zasady \textbf{TDD} oraz \textbf{BDD}. 
-\section{Implementacja paradygmatu funkcyjnego do istniejącego kodu obiektowego oraz dalsze usprawnienia}
-\subsection{Wydzielenie logiki kodu}
-\subsection{Funkcja jako wyrażenie}
+\begin{lstlisting}[language=scala]
+    it("should degrade conjured quality by two when the day ends"){
+      gildedRose.updateQuality()
+      assertResult(10)(conjured.quality)
+    }
 
+    it("should degrade conjured quality twice as normal if sellIn <=0"){
+      conjured.sellIn = 0
+      gildedRose.updateQuality()
+      assertResult(8)(conjured.quality)
+    } 
+\end{lstlisting}
+Dzięki refactoryzacji kodu, dodanie nowej funkcjonalności okazało się bardzo proste. Wystarczyło dodać kolejne instrukcje do głównej funkcji \textit{UpdateQuality}.
+\begin{lstlisting}[language=scala]
+...
+case item@Item(Conjured, sellIn, quality) if quality > 0 && sellIn > 0 =>
+    item.sellIn -= 1
+    item.quality -=2
+case item@Item(Conjured, sellIn, quality) if quality > 0 && sellIn <= 0 =>
+    item.sellIn -= 1
+    item.quality -= 4
+...
+\end{lstlisting}
+Po dokonaniu implementacji, pozostało nam dodać kilka komentarzy w plikach źródłowych projektu by był on bardziej zrozumiały dla innych osób z nim pracujących, np.
+\begin{lstlisting}[language=scala]
+   /**
+   * A function to avoid exceeding maximum quality of given item.
+   * @param item Item to be checked
+   * @param updateValue Value to be added to the item's quality.
+   * @param maxQuality Maximum quality for given item.
+   * @return
+   */
+  def setMaxQuality(item: Item, updateValue: Int, maxQuality: Int): Item = {
+    item.quality += updateValue
+    item.quality = item.quality min maxQuality
+    item
+  }
+
+\end{lstlisting}
+
+\subsection{Podsumowanie}
+Teraz, gdy dodatkowa funkcjonalność została zaimplementowana, należy podsumować to co udało nam się osiągnąć podczas procesu refactoryzacji projektu GildedRose.
+\begin{figure}[!tbh]
+\includegraphics[width=4cm]{v1_ov}
+\centering
+\end{figure}\\
+Jak można zauważyć wszystkie znaczące błędy oraz \textit{code smells} zostały naprawione. Dodatkowo pokrycie kodu przez testy jednostkowe pozostało niezmienione - znajduje się na poziomie 100\%.
+\section{Dalsze usprawnienia}
+Kod otrzymany w wyniku wykonanych zmian jest poprawny, aczkolwiek daleko mu do ideału. Brakuje mu skalowalności - każda nowa funkcjonalność wymaga zmiany głównej funkcji programu, co może powodować do błędów w przyszłości. Dodatkowo nie spełnia on warunków paradygmatów obiektowych oraz funkcjonalnych - Scala jest językiem który potrafi pogodzić te dwa paradygmaty, dlatego też w tym rozdziale zajmiemy się dalszymi usprawnieniami projektu GildedRose. Składają się one na:
+\begin{enumerate}
+ \item Wydzielenie logiki kodu za pomocą ekstrakcję zachowań poszczególnych przedmiotów.
+ \item Umożliwienie sprawne tworzenie nowych zachowań z zachowaniem domyślnych właściwości nowo utworzonych przedmiotów.
+ \item Reimplementacja głównej logiki by stała się niezależna i odporna na potencjalne zmiany.
+\end{enumerate}
+\subsection{Wydzielenie logiki kodu}
+Podczas refactoryzacji kodu zauważalne stały się zależności między zachowaniami poszczególnych przedmiotów. Podczas operacji aktualizacji danych nadpisywane są dwa z trzech pól - termin sprzedaży oraz jakość obiektu. Dodatkowo większość z nich współdzieli implementację niektórych zachowań.\\
+Te obserwacje umożliwiły podzielenie zachowań według następującego wzorca:
+\begin{enumerate}
+ \item Zachowanie bazowe, które definiuje sposób aktualizacji pól obiektów.
+ \item Zachowania dziedziczące po bazowym, które mogą być całkowicie zależne od bazowego, zachowywać się w sposób niezależny bądź cześciowo implementować zachowanie bazowe.
+\end{enumerate}
+W późniejszych podrozdziałach podjęty zostanie temat dalszej pracy nad systemem GildedRose
+\subsubsection{Potencjał dziedziczenia zachowań przedmiotów}
+Zachowanie bazowe zostało zaimplementowane za pomocą tzw. \textit{klasy abstrakcyjnej} w której zdefiniowane zostały operacje współdzielone przez poszczególne przedmioty.
+\begin{lstlisting}[language=scala]
+ /**
+ * Abstract class which create behaviour based on the item name.
+ * @param item Item to create a behaviour for.
+ */
+abstract class Behaviour(item: Item) {
+
+  val maxQuality = 50
+  val minQuality = 0
+
+  def update(): Unit = {
+    updateQualityValue()
+    updateSellInValue()
+
+    item.quality = if (item.quality > maxQuality)  maxQuality
+      else if (item.quality < minQuality) minQuality
+        else item.quality
+  }
+
+
+  protected def updateQualityValue(): Unit
+
+  protected def updateSellInValue(): Unit = item.sellIn -= 1
+
+}
+\end{lstlisting}
+Następnie, utworzone zostały klasy poszczególnych przedmiotów, które dziedziczyły po klasie abstrakcyjnej \textit{Behaviour}. W zależności od potrzeb, dane podklasy nadpisywały zachowania swojego rodzica bądź czerpały implementację bezpośrednio od niego.
+\begin{lstlisting}[language=scala]
+ class DefaultBehaviour(item: Item) extends Behaviour(item){
+  override protected def updateQualityValue(): Unit = {
+    item.quality = if (item.sellIn <= 0) item.quality - 2 else item.quality - 1
+  }
+}
+
+class BackstageBehaviour(item: Item) extends Behaviour(item){
+  override protected def updateQualityValue(): Unit = {
+    item.quality = if (item.sellIn < 6) item.quality + 3
+      else if (item.sellIn < 11) item.quality + 2
+        else item.quality + 1
+  }
+
+  override protected def updateSellInValue(): Unit = {
+    super.updateSellInValue()
+    item.quality = if (item.sellIn < 0) 0 else item.quality
+  }
+}
+\end{lstlisting}
+Warto nadmienić tutaj fakt, że same klasy zachowań zostały napisane w taki sposób by był swoistym opakowaniem dla poszczególnych przedmiotów. Same w sobie nie zwracają żadnych wartości, jedyne co wykonują to pobieranie przedmiotu w konstruktorze oraz dokonywanie na nim niezbędnych operacji. Dodatkowo, wykorzystana została tutaj jedna z cech języka programowania Scala - wyrażenia traktowane w językach obiektowych jako imperatywne (takie jak np. \textbf{for, if}, tutaj są funkcjami i zwracają wartość. Dzięki tej właściwości wyrażenie
+\begin{lstlisting}[language=scala]
+item.quality = if (item.sellIn < 0) 0 else item.quality
+\end{lstlisting}
+jest akceptowane przez maszynę wirtualną Javy - w efekcie przypisuje do pola żądaną wartość w zależności od danego warunku.
+\subsubsection{Wzorzec projektowy fabryka}
+Kiedy poszczególne zachowania zostały już zdefiniowane pozostaje kolejny problem do rozwiązania - przypisywanie przedmiotów do poszczególnych wzorców. W tym celu utworzony został obiekt \textit{ItemFactory} wraz ze zdefiniowaną funkcją \textit{update}. Jej zadaniem jest zdefiniowanie zachowania na podstawie jego nazwy. Implementacja prezentuje się w sposób następujący:
+\begin{lstlisting}[language=scala]
+ object ItemFactory {
+  def create(item: Item): Behaviour = item.name match {
+    case "Sulfuras, Hand of Ragnaros" => new LegendaryItemBehaviour(item)
+    case "Aged Brie" => new AgedBrieBehaviour(item)
+    case "Backstage passes to a TAFKAL80ETC concert" => new BackstageBehaviour(item)
+    case "conjured" => new ConjuredBehaviour(item)
+    case _ => new DefaultBehaviour(item)
+  }
+}
+\end{lstlisting}
+Do rozpatrzenia odpowiedniego zachowania dla danego przedmiotu zastosowane zostało dopasowanie wzorca.
+\subsubsection{Finalizacja}
+W celu wykorzystania nowo utworzonej implementacji zachowań, należało zmienić główną funkcję obsługującą logikę GildedRose. Dotychczasowa iteracja oraz dopasowanie wzorca nie jest już potrzebne, dlatego cała obsługa przedmiotów w systemie została skrócona do czysto funkcyjnej postaci:
+\begin{lstlisting}[language=scala]
+ class GildedRose(val items: Array[Item]) {
+  /**
+   * A function which maps all given items into Behaviour wrapper and updates its values.
+   */
+  def updateQuality(): Unit = {
+    items.map(ItemFactory.create).foreach(_.update())
+  }
+}
+\end{lstlisting}
+\section{Podsumowanie}
+Finalna analiza projektu za pomocą narzędzia SonarQube prezentuje się w sposób następujący:
+\begin{figure}[!tbh]
+\includegraphics[width=16cm]{final_ov}
+\centering
+\end{figure}\\
+Jak widać na załączonym raporcie, wszystkie początkowe problemy związane zarówno z poprawnością implementacji jak i jej jakością zostały naprawione. Testy zgodnie z założeniem pokrywają 100\% przypadków oraz w kodzie nie znajdują się żadne duplikaty. DOdatkowo udało się implementację znacznie uprościć i skrócić, dzięki zastosowaniu podeścia modularnego w postaci obiektów reprezentujacych zachowanie jak i uzyciu paradygmantów funkcyjnych.
+Przystąpmy teraz do analizy rozwoju projektu na przestrzeni poszczególnych wydań.
+\begin{figure}[!tbh]
+\includegraphics[width=16cm]{final_issues}
+\centering
+\end{figure}\\
+Na załączonych wykresach widać spadek problemów z kodem źródłowym projektem na przestrzeni posczególnych wersji. Duża część z nich była generowana w trakcie procesu refactoryzacji, lecz równie sprawne były one eliminowane.
+\begin{figure}[!tbh]
+\includegraphics[width=16cm]{final_dup}
+\centering
+\end{figure}\\
+Zmniejszyła się również ilość linii co udowadnia dużą złożoność kodu wyjściowego oraz poprawność zastosowanego rozwiązania.
 \end{document}
